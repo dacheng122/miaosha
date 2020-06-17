@@ -6,7 +6,7 @@
   <artifactId>miaosha</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
-  
+
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
@@ -16,9 +16,35 @@
   <name>miaosha_2</name>
   <url>http://maven.apache.org</url>
 
-  <properties>
+ <!-- <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+  </properties>-->
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<main.basedir>${project.basedir}</main.basedir>
+		<commons-lang3-version>3.7</commons-lang3-version>
+		<dubbo-version>2.7.0</dubbo-version>
+		<curator-version>2.12.0</curator-version>
+		<curator-test-version>4.1.0</curator-test-version>
+		<fastjson-version>1.2.46</fastjson-version>
+		<springfox-swagger-version>2.9.2</springfox-swagger-version>
+		<netty-version>4.1.30.Final</netty-version>
+		<jacoco-version>0.8.2</jacoco-version>
+		<jedis-version>2.9.0</jedis-version>
+		<apollo-version>1.2.0</apollo-version>
+		<snakeyaml-version>1.19</snakeyaml-version>
+		<maven-checkstyle-plugin-version>3.0.0</maven-checkstyle-plugin-version>
+		<spring-boot-version>2.1.3.RELEASE</spring-boot-version>
+		<maven_compiler_version>3.6.0</maven_compiler_version>
+		<java_source_version>1.8</java_source_version>
+		<java_target_version>1.8</java_target_version>
+		<file_encoding>UTF-8</file_encoding>
+		<checkstyle.skip>true</checkstyle.skip>
+		<rat.skip>true</rat.skip>
+		<commons-pool2_version>2.6.2</commons-pool2_version>
+		<p6spy.version>3.8.0</p6spy.version>
+		<dynamic-datasource_version>2.5.4</dynamic-datasource_version>
+	</properties>
 
   <dependencies>
 
@@ -97,7 +123,7 @@
 
   </dependencies>
   
-  <build>
+  <!--<build>
 	  	<finalName>${project.artifactId}</finalName>  
 	    <plugins>
 				<plugin>
@@ -113,5 +139,136 @@
                 </configuration>
             </plugin>
         </plugins>
-</build>
+</build>-->
+
+	<!-- 打可执行生产包 -->
+	<build>
+		<finalName>rongplus-receive-${project.version}</finalName>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>version.txt</include>
+					<include>mapper/**/*.xml</include>
+					<include>static/**</include>
+					<include>templates/**</include>
+					<include>META-INF/**</include>
+					<include>*.xml</include>
+					<include>*.yml</include>
+					<include>*.properties</include>
+				</includes>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>${spring-boot-version}</version>
+				<configuration>
+					<layout>ZIP</layout>
+					<mainClass>cn.rongplus.msg.Bootstrap</mainClass>
+					<includes>
+						<!-- 项目启动jar包中排除依赖包 -->
+						<include>
+							<groupId>non-exists</groupId>
+							<artifactId>non-exists</artifactId>
+						</include>
+					</includes>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+					<encoding>${file_encoding}</encoding>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven_compiler_version}</version>
+				<configuration>
+					<source>${java_source_version}</source>
+					<target>${java_target_version}</target>
+					<encoding>${file_encoding}</encoding>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<!-- 项目启动类 -->
+							<mainClass>cn.rongplus.msg.Bootstrap</mainClass>
+							<!-- 依赖的jar的目录前缀 -->
+							<classpathPrefix>../lib</classpathPrefix>
+							<addClasspath>true</addClasspath>
+						</manifest>
+					</archive>
+					<includes>
+						<!-- 只打包指定目录的文件 -->
+						<include>cn/rongplus/msg/**</include>
+					</includes>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2-beta-5</version>
+				<executions>
+					<execution>
+						<!-- 绑定到package生命周期阶段 -->
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<!-- 只运行一次 -->
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<finalName>${project.name}</finalName>
+							<appendAssemblyId>false</appendAssemblyId>
+							<descriptors>
+								<!--描述文件路径 ，默认跟当前pom.xml同一级目录下 -->
+								<descriptor>src/main/assembly/release.xml</descriptor>
+							</descriptors>
+							<archive>
+								<manifest>
+									<mainClass>cn.rongplus.msg.Bootstrap</mainClass>
+								</manifest>
+							</archive>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.8</version>
+				<executions>
+					<execution>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>target/lib</outputDirectory>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>false</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+							<includeScope>compile</includeScope>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>
