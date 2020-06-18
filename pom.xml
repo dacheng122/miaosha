@@ -13,7 +13,7 @@
     <version>1.5.8.RELEASE</version>
 </parent>
 
-  <name>miaosha_2</name>
+  <name>miaosha</name>
   <url>http://maven.apache.org</url>
 
  <!-- <properties>
@@ -121,6 +121,12 @@
 		<artifactId>spring-boot-starter-amqp</artifactId>  
 	</dependency>
 
+	  <dependency>
+		  <groupId>ch.qos.logback</groupId>
+		  <artifactId>logback-classic</artifactId>
+		  <version>1.2.3</version>
+	  </dependency>
+
   </dependencies>
   
   <!--<build>
@@ -143,7 +149,7 @@
 
 	<!-- 打可执行生产包 -->
 	<build>
-		<finalName>rongplus-receive-${project.version}</finalName>
+		<finalName>miaosha-${project.version}</finalName>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
